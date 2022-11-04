@@ -16,14 +16,14 @@ class DBInteraction:
             self.create_table_musical_compositions()
 
     def create_table_users(self):
-        if not self.engine.dialect.has_table(self.engine, 'users'):
+        if not self.engine.dialect.has_table(self.mysql_connection.connection, 'users'):
             Base.metadata.tables['users'].create(self.engine)
         else:
             self.mysql_connection.execute_query(f'DROPTABLE IF EXISTS users')
             Base.metadata.tables['users'].create(self.engine)
 
     def create_table_musical_compositions(self):
-        if not self.engine.dialect.has_table(self.engine, 'musical_compositions'):
+        if not self.engine.dialect.has_table(self.mysql_connection.connection, 'musical_compositions'):
             Base.metadata.tables['musical_compositions'].create(self.engine)
         else:
             self.mysql_connection.execute_query(f'DROPTABLE IF EXISTS musical_compositions')
@@ -36,7 +36,7 @@ class DBInteraction:
             email=email
         )
         self.mysql_connection.session.add(user)
-        return True
+        return self.get_user_info(username)
 
     def get_user_info(self, username):
         user = self.mysql_connection.session.query(User).filter_by(username=username).first()
@@ -46,14 +46,27 @@ class DBInteraction:
         else:
             raise UserNotFoundException('User not found')
 
+    def edit_user_info(self, username, new_username=None, new_email=None, new_password=None):
+        user = self.mysql_connection.session.query(User).filter_by(username=username).first()
+        if user:
+            if new_username is not None:  # Validation needed
+                user.username = new_username
+            if new_email is not None:  # Validation needed
+                user.email = new_email
+            if new_password is not None:  # Validation needed
+                user.password = new_password
+            return self.get_user_info(username if new_username is None else new_username)
+        else:
+            raise UserNotFoundException('User not found')
 
-if __name__ == '__main__':
+
+if __name__ == '__main__':  # TEST RUN
     db = DBInteraction(
         host='127.0.0.1',
         port=3306,
-        user='root',
-        password='pass',
-        db_name='test',
+        user='admin',
+        password='admin',
+        db_name='flask1',
         rebuild_db='True'
     )
-    pass
+    db.add_user_info('test1', 'test1', 'test1')
