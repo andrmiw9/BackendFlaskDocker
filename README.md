@@ -1,5 +1,5 @@
 # BackendFlaskDocker
-
+Something
 Проект по освоению бэкенда на Python, в соответствии с принципами REST API. Используется: Flask, MySQL, ORM подход для БД (SQLAlchemy), 
 threading для запуска самого сервера, argparser для получения конфига.
 
