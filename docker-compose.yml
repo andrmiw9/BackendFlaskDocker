@@ -1,0 +1,28 @@
+version: '2.12.2'
+
+services:
+  mysql_db:
+    container_name: backendflask_mysql_db
+    image: 'mysql:latest'
+    environment:
+      # позволяет автом-ки создать БД
+      MYSQL_DATABASE: backendbd
+      MYSQL_ROOT_PASSWORD: pass
+    ports:
+      - 3306:3306
+    # проверка на то, что база поднята
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "-uroot", "-ppass", "-h", "127.0.0.1" ]
+      timeout: 10s
+      retries: 5
+  # Приложение
+  app_server:
+    container_name: backendflask_sever
+    build: ./
+    ports:
+      - 5005:5005
+    links: # обьединяет в общую сеть
+      - mysql_db:mysql_database
+    depends_on: # зависимости
+      mysql_db:
+        condition: service_healthy
